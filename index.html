@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>哈比巴</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+:root {
+    /* Richer, deeper romantic palette */
+    --bg-dark: #1a0508;
+    --bg-accent: #4a0e1c;
+    --accent: #ff4d6d;
+    --text: #ffffff;
+    --subtext: rgba(255, 255, 255, 0.6);
+}
+
+body, html {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    background: radial-gradient(circle at center, var(--bg-accent) 0%, var(--bg-dark) 100%);
+    font-family: 'Cairo', sans-serif;
+    color: var(--text);
+    display: flex; justify-content: center; align-items: center;
+    overflow: hidden;
+}
+
+/* Animated Gradient Mesh */
+.background-animate {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    background: linear-gradient(45deg, #1a0508, #2d0b13, #1a0508);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Floating Hearts Container */
+#heart-particles {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.content-wrapper {
+    position: relative; z-index: 10; text-align: center;
+    width: 100%; max-width: 500px; padding: 20px;
+}
+
+h1 {
+    font-size: 2.8rem; font-weight: 900; margin-bottom: 60px;
+    text-shadow: 0 0 20px rgba(255, 77, 109, 0.5);
+}
+
+.btn-container {
+    position: relative; height: 350px; width: 100%;
+    display: flex; flex-direction: column; align-items: center;
+}
+
+/* THE STATIC BUTTON (Primary) */
+#noBtn {
+    position: relative;
+    padding: 22px 65px; font-size: 1.5rem; font-weight: 900;
+    color: white; border: none; border-radius: 100px;
+    background: linear-gradient(135deg, #ff4d6d, #c9184a);
+    cursor: pointer; z-index: 20;
+    box-shadow: 0 10px 40px rgba(255, 77, 109, 0.4);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* THE EVASIVE BUTTON (Secondary) */
+#yesBtn {
+    position: absolute;
+    padding: 12px 30px; font-size: 1.1rem;
+    color: var(--subtext); background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 100px;
+    cursor: pointer; z-index: 15; backdrop-filter: blur(5px);
+}
+
+/* Final Screen */
+.overlay {
+    position: fixed; inset: 0; 
+    background: radial-gradient(circle, #2d0b13 0%, #050505 100%);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    opacity: 0; visibility: hidden; z-index: 100; transition: opacity 3s ease;
+}
+
+.overlay.active { opacity: 1; visibility: visible; }
+
+#loveMsg {
+    font-size: 2.2rem;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.6;
+
+    background: linear-gradient(to bottom, #ffffff, #ffb3c1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* FIX: emoji خارج تأثير الجريدينت */
+.emoji {
+    -webkit-text-fill-color: initial; /* مهم جداً */
+    background: none;
+    margin-left: 8px;
+    display: inline-block;
+}
+
+.heart-main {
+    font-size: 6rem; margin: 30px 0;
+    filter: drop-shadow(0 0 25px var(--accent));
+}
+
+/* Simple heart icon for background */
+.floating-heart {
+    position: absolute;
+    color: rgba(255, 77, 109, 0.2);
+    font-size: 1.5rem;
+    user-select: none;
+}
+
+</style>
+</head>
+<body>
+
+<div class="background-animate"></div>
+<div id="heart-particles"></div>
+
+<div class="content-wrapper">
+    <h1 id="question">لسه مش طايقاني...؟🥺</h1>
+    
+    <div class="btn-container" id="arena">
+	
+        <button id="noBtn">خلاص مش زعلانه❤️🤗</button>
+        <button id="yesBtn" style="top: 200px;">أيوه 😏</button>
+    </div>
+</div>
+
+<div class="overlay" id="overlay">
+    <div id="loveMsg">
+        ...Never stop smiling<br>
+   <span class="emoji">😉</span>  .The world feels better with Habiba Smile  
+    </div>  
+    <div class="heart-main">❤️</div>
+    <div id="loveMsg" style="font-size: 1.8rem;">
+微笑    </div>
+</div>
+
+<script>
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const question = document.getElementById("question");
+const overlay = document.getElementById("overlay");
+const arena = document.getElementById("arena");
+const heartContainer = document.getElementById("heart-particles");
+
+let clicks = 0;
+let noScale = 1;
+let yesScale = 1;
+
+const phrases = [
+    "😂 لسه مش طايقاني...؟🥺",
+    "حقك عليا ماقدرش ازعلك 🙈",
+	"حقك عليا ماقدرش ازعلك 🙈",
+];
+
+// Create floating background hearts
+function createHeart() {
+    const heart = document.createElement("div");
+    heart.innerHTML = "❤";
+    heart.className = "floating-heart";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.top = "110vh";
+    heart.style.opacity = Math.random() * 0.5;
+    heart.style.fontSize = (Math.random() * 20 + 10) + "px";
+    
+    heartContainer.appendChild(heart);
+
+    gsap.to(heart, {
+        y: "-120vh",
+        x: (Math.random() - 0.5) * 200,
+        rotation: Math.random() * 360,
+        duration: Math.random() * 5 + 5,
+        ease: "none",
+        onComplete: () => heart.remove()
+    });
+}
+
+setInterval(createHeart, 400);
+
+function escapeYes() {
+    const maxX = arena.offsetWidth - yesBtn.offsetWidth;
+    const maxY = arena.offsetHeight - yesBtn.offsetHeight;
+    
+    const randomX = Math.floor(Math.random() * maxX);
+    const randomY = Math.floor(Math.random() * maxY);
+
+    gsap.to(yesBtn, {
+        left: randomX,
+        top: randomY,
+        duration: 0.3,
+        ease: "power2.out"
+    });
+}
+
+yesBtn.addEventListener("click", () => {
+    clicks++;
+    escapeYes();
+
+    yesScale -= 0.25;
+    yesBtn.style.transform = `scale(${Math.max(yesScale, 0)})`;
+    if(yesScale <= 0.1) yesBtn.style.opacity = "0";
+
+    noScale += 0.35;
+    noBtn.style.transform = `scale(${noScale})`;
+
+    if (clicks < phrases.length) {
+        gsap.to(question, { opacity: 0, y: -10, duration: 0.2, onComplete: () => {
+            question.innerText = phrases[clicks];
+            gsap.to(question, { opacity: 1, y: 0, duration: 0.3 });
+        }});
+    } else {
+        yesBtn.style.display = "none";
+    }
+});
+
+yesBtn.addEventListener("mouseenter", escapeYes);
+
+noBtn.addEventListener("click", () => {
+    confetti({
+        particleCount:3000,
+        spread: 500,
+        origin: { y: 0.3},
+        colors: ['#ff4d6d', '#ff758f', '#ffffff']
+    });
+
+    setTimeout(() => {
+        overlay.classList.add("active");
+        gsap.from(".heart-main", { 
+            scale: 0.5, 
+            duration: 0.8, 
+            ease: "back.out(2)", 
+            repeat: -1, 
+            yoyo: true 
+        });
+    }, 400);
+});
+</script>
+
+</body>
+</html>
