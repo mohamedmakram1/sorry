@@ -171,7 +171,7 @@ let yesScale = 1;
 const phrases = [
     "😂 لسه مش طايقاني...؟🥺",
     "حقك عليا ماقدرش ازعلك 🙈",
-	"حقك عليا ماقدرش ازعلك 🙈",
+	"مش من قلبك 🙈",
 ];
 
 // Create floating background hearts
@@ -220,6 +220,10 @@ yesBtn.addEventListener("click", () => {
     if (clicks === 1) {
         yesBtn.innerText = "لسه زعلانه بردو 😏";
     }
+	 // أول ضغطة بس يغير النص
+    if (clicks === 2) {
+        yesBtn.innerText = "لا من قلبي 😏";
+    }
 
     escapeYes();
 
@@ -264,4 +268,4 @@ noBtn.addEventListener("click", () => {
 </script>
 
 </body>
-</html>
+</html> 
