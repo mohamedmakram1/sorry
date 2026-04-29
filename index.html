@@ -215,6 +215,12 @@ function escapeYes() {
 
 yesBtn.addEventListener("click", () => {
     clicks++;
+
+    // أول ضغطة بس يغير النص
+    if (clicks === 1) {
+        yesBtn.innerText = "لسه زعلانه بردو 😏";
+    }
+
     escapeYes();
 
     yesScale -= 0.25;
